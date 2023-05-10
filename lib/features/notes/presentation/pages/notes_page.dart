@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:clean_architecture_app/features/notes/data/datasources/note_remote.dart';
 import 'package:clean_architecture_app/features/notes/data/repositories/note_repository_impl.dart';
 import 'package:clean_architecture_app/features/notes/domain/entities/note.dart';
@@ -28,22 +30,35 @@ class _PostsPageState extends State<PostsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 22, 22, 22),
       appBar: AppBar(
-        title: const Text('Notas'),
+        backgroundColor: const Color.fromARGB(255, 22, 22, 22),
+        elevation: 0,
+        toolbarHeight: 110,
+        title: const  Padding(
+          padding:  EdgeInsets.only(left: 12),
+          child:  Text('Mis Notas', style: TextStyle(fontSize: 30, color: Color.fromARGB(220, 255, 255, 255)),),
+        ),
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Agregar inventario',
+            icon: Image.asset('assets/images/pencil_icon.png'),
+            iconSize: 35,
+            tooltip: 'Agregar nota',
             onPressed: () {
-              createInventoryPopUp(context);
+              createNotePopUp(context);
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Actualizar lista',
-            onPressed: () async {
-              BlocProvider.of<NotesBloc>(context).add(GetNotes());
-            },
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.refresh),
+              iconSize: 30,
+              color: Color.fromARGB(220, 255, 255, 255),
+              tooltip: 'Actualizar lista',
+              onPressed: () async {
+                BlocProvider.of<NotesBloc>(context).add(GetNotes());
+              },
+            ),
           )
         ],
       ),
@@ -54,118 +69,139 @@ class _PostsPageState extends State<PostsPage> {
           );
         } else if (state is Loaded) {
           return SingleChildScrollView(
-            child: Column(
-                children: state.notes.map((note) {
-              TextEditingController noteTitle =
-                  TextEditingController(text: note.title);
-              TextEditingController noteBody =
-                  TextEditingController(text: note.body);
-              return Container(
-                margin: const EdgeInsets.all(5),
-                padding: const EdgeInsets.all(5),
-                color: Colors.black12,
-                child: ListTile(
-                  // leading: Text(note.id.toString()),
-                  title: Text(note.title),
-                  subtitle: Text(note.body),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Row(
-                                  children: const [
-                                    Icon(
-                                      Icons.add,
-                                    ),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      'Editar nota',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                                content: SizedBox(
-                                  height: 150,
-                                  child: Column(
-                                    children: [
-                                      TextField(
-                                        controller: noteTitle,
-                                        maxLength: 15,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Titulo',
-                                        ),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 5, left: 15, right: 15),
+              child: Column(
+                  children: state.notes.map((note) {
+                TextEditingController noteTitle =
+                    TextEditingController(text: note.title);
+                TextEditingController noteBody =
+                    TextEditingController(text: note.body);
+                return Container(
+                  margin: const EdgeInsets.only(left: 5, right: 5, bottom: 15),
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16), 
+                    color: const Color.fromARGB(255, 34, 34, 36),
+                     boxShadow: const [
+                        BoxShadow(
+                          color: Color.fromARGB(255, 17, 17, 17),
+                          blurRadius: 4.0, // soften the shadow
+                          spreadRadius: -1.5, //extend the shadow
+                          offset: Offset(
+                            0.5, 
+                            2.5, 
+                          ),
+                        )
+                      ],
+                  ),
+                  child: ListTile(
+                    // leading: Text(note.id.toString()),
+                    title: Text(note.title, style: const TextStyle(color: Color.fromARGB(185, 255, 255, 255), fontSize: 20),),
+                    subtitle: Text(note.body, style: const TextStyle(color: Color.fromARGB(140, 255, 255, 255)),),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.white70,),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  backgroundColor: Color.fromARGB(255, 34, 34, 36) ,
+                                  title: Row(
+                                    children: const [
+                                      Icon(
+                                        Icons.edit,
+                                        color: Colors.white70,
                                       ),
-                                      TextField(
-                                        controller: noteBody,
-                                        maxLength: 50,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Descripción',
-                                        ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        'Editar nota',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold, color: Colors.white70),
                                       ),
                                     ],
                                   ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Cancelar'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      var noteUpdate = Note(
-                                          id: note.id,
-                                          title: noteTitle.text,
-                                          body: noteBody.text);
-                                      await UpdateNoteUsecase(
-                                          NoteRepositoryImpl(
-                                        noteRemoteDataSource:
-                                            NoteRemoteDataSourceImp(),
-                                      )).execute(noteUpdate).then(((value) {
-                                        BlocProvider.of<NotesBloc>(context)
-                                            .add(GetNotes());
-                                        Navigator.of(context).pop();
-                                      }));
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.white,
-                                      backgroundColor: const Color(0xffff8e00),
-                                      shape: (RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5),
-                                      )),
+                                  content: SizedBox(
+                                    height: 150,
+                                    child: Column(
+                                      children: [
+                                        TextField(
+                                          controller: noteTitle,
+                                          maxLength: 15,
+                                          
+                                          decoration: const InputDecoration(
+                                            hintText: 'Titulo', 
+                                            focusColor: Colors.white60
+                                          ),
+                                        ),
+                                        TextField(
+                                          controller: noteBody,
+                                          maxLength: 50,
+                                          decoration: const InputDecoration(
+                                            hintText: 'Descripción',
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    child: const Text('Actualizar'),
                                   ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () async {
-                          await DeleteNoteUsecase(NoteRepositoryImpl(
-                            noteRemoteDataSource: NoteRemoteDataSourceImp(),
-                          )).execute(note).then(((value) {
-                            BlocProvider.of<NotesBloc>(context).add(GetNotes());
-                            // Navigator.of(context).pop();
-                          }));
-                        },
-                      ),
-                    ],
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('Cancelar'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        var noteUpdate = Note(
+                                            id: note.id,
+                                            title: noteTitle.text,
+                                            body: noteBody.text);
+                                        await UpdateNoteUsecase(
+                                            NoteRepositoryImpl(
+                                          noteRemoteDataSource:
+                                              NoteRemoteDataSourceImp(),
+                                        )).execute(noteUpdate).then(((value) {
+                                          BlocProvider.of<NotesBloc>(context)
+                                              .add(GetNotes());
+                                          Navigator.of(context).pop();
+                                        }));
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        foregroundColor: Colors.white,
+                                        backgroundColor: Colors.deepPurple,
+                                        shape: (RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(5),
+                                        )),
+                                      ),
+                                      child: const Text('Actualizar'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.white70,),
+                          onPressed: () async {
+                            await DeleteNoteUsecase(NoteRepositoryImpl(
+                              noteRemoteDataSource: NoteRemoteDataSourceImp(),
+                            )).execute(note).then(((value) {
+                              BlocProvider.of<NotesBloc>(context).add(GetNotes());
+                              // Navigator.of(context).pop();
+                            }));
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }).toList()),
+                );
+              }).toList()),
+            ),
           );
         } else if (state is Error) {
           return Center(
@@ -178,7 +214,7 @@ class _PostsPageState extends State<PostsPage> {
     );
   }
 
-  createInventoryPopUp(BuildContext context) {
+  createNotePopUp(BuildContext context) {
     TextEditingController noteTitle = TextEditingController();
     TextEditingController noteBody = TextEditingController();
     showDialog(
@@ -188,7 +224,7 @@ class _PostsPageState extends State<PostsPage> {
           title: Row(
             children: const [
               Icon(
-                Icons.add,
+                Icons.edit,
               ),
               SizedBox(width: 10),
               Text(
@@ -198,19 +234,19 @@ class _PostsPageState extends State<PostsPage> {
             ],
           ),
           content: SizedBox(
-            height: 150,
+            height: 220,
             child: Column(
               children: [
                 TextField(
                   controller: noteTitle,
-                  maxLength: 15,
+                  maxLength: 20,
                   decoration: const InputDecoration(
                     hintText: 'Titulo',
                   ),
                 ),
                 TextField(
                   controller: noteBody,
-                  maxLength: 50,
+                  maxLength: 100,
                   decoration: const InputDecoration(
                     hintText: 'Descripción',
                   ),
@@ -237,10 +273,10 @@ class _PostsPageState extends State<PostsPage> {
                 }));
               },
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: const Color(0xffff8e00),
+                foregroundColor: const Color.fromARGB(220, 255, 255, 255),
+                backgroundColor: Colors.deepPurple,
                 shape: (RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
+                  borderRadius: BorderRadius.circular(7),
                 )),
               ),
               child: const Text('Crear'),

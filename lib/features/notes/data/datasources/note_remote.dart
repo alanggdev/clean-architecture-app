@@ -14,7 +14,7 @@ abstract class NoteRemoteDataSource {
 class NoteRemoteDataSourceImp implements NoteRemoteDataSource {
   @override
   Future<List<NoteModel>> getNotes() async {
-    var url = Uri.https('5310-2806-10ae-1b-a78a-217b-9970-7c58-6088.ngrok-free.app', '/api/notes');
+    var url = Uri.https('4978-2806-10ae-1b-a78a-71f9-7912-dd2b-9877.ngrok-free.app', '/api/notes');
     var response = await http.get(url);
 
     if(response.statusCode == 200) {
@@ -28,7 +28,7 @@ class NoteRemoteDataSourceImp implements NoteRemoteDataSource {
 
   @override
   Future<void> addNote(Note note) async {
-    var url = Uri.https('5310-2806-10ae-1b-a78a-217b-9970-7c58-6088.ngrok-free.app', '/api/notes');
+    var url = Uri.https('4978-2806-10ae-1b-a78a-71f9-7912-dd2b-9877.ngrok-free.app', '/api/notes');
     var body = {
       'title': note.title,
       'body': note.body,
@@ -41,7 +41,7 @@ class NoteRemoteDataSourceImp implements NoteRemoteDataSource {
 
   @override
   Future<void> updateNote(Note note) async {
-    var url = Uri.https('5310-2806-10ae-1b-a78a-217b-9970-7c58-6088.ngrok-free.app', '/api/note/${note.id}');
+    var url = Uri.https('4978-2806-10ae-1b-a78a-71f9-7912-dd2b-9877.ngrok-free.app', '/api/note/${note.id}');
     var body = {
       'title': note.title,
       'body': note.body,
@@ -54,7 +54,7 @@ class NoteRemoteDataSourceImp implements NoteRemoteDataSource {
 
   @override
   Future<void> deleteNote(Note note) async {
-    var url = Uri.https('5310-2806-10ae-1b-a78a-217b-9970-7c58-6088.ngrok-free.app', '/api/note/${note.id}');
+    var url = Uri.https('4978-2806-10ae-1b-a78a-71f9-7912-dd2b-9877.ngrok-free.app', '/api/note/${note.id}');
     var response = await http.delete(url);
 
     print(response.body.toString());

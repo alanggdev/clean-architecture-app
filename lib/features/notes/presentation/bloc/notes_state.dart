@@ -2,6 +2,14 @@ part of 'notes_bloc.dart';
 
 abstract class NotesState {}
 
+class Updating extends NotesState {}
+
+class Updated extends NotesState{
+  final String msg;
+
+  Updated({required this.msg});
+}
+
 class Loading extends NotesState {}
 
 class Loaded extends NotesState {

@@ -263,14 +263,10 @@ class _PostsPageState extends State<PostsPage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                var note =
-                    Note(id: 0, title: noteTitle.text, body: noteBody.text);
-                await AddNoteUsecase(NoteRepositoryImpl(
-                  noteRemoteDataSource: NoteRemoteDataSourceImp(),
-                )).execute(note).then(((value) {
-                  BlocProvider.of<NotesBloc>(context).add(GetNotes());
-                  Navigator.of(context).pop();
-                }));
+                var note = Note(id: 0, title: noteTitle.text, body: noteBody.text);
+                BlocProvider.of<NotesBlocAdd>(context).add(AddNotes(note: note));
+                Navigator.of(context).pop();
+                BlocProvider.of<NotesBloc>(context).add(GetNotes());
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: const Color.fromARGB(220, 255, 255, 255),

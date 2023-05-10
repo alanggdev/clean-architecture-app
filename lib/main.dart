@@ -22,6 +22,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<NotesBloc>(
           create: (BuildContext context) => NotesBloc(getNotesUsecase: usecaseConfig.getNotesUsecase!)
         ),
+        BlocProvider<NotesBlocAdd>(
+          create: (BuildContext context) => NotesBlocAdd(addNoteUsecase: usecaseConfig.addNoteUsecase!)
+        ),
       ],
 
       child: MaterialApp(

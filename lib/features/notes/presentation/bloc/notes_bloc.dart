@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:clean_architecture_app/features/notes/domain/entities/note.dart';
+import 'package:clean_architecture_app/features/notes/domain/usecases/add_note.dart';
 import 'package:clean_architecture_app/features/notes/domain/usecases/get_notes.dart';
 
 part 'notes_event.dart';
@@ -16,6 +17,23 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
         try {
           List<Note> response = await getNotesUsecase.execute();
           emit(Loaded(notes: response));
+        } catch (e) {
+          emit(Error(error: e.toString()));
+        }
+      }
+    });
+  }
+}
+
+class NotesBlocAdd extends Bloc<NotesEvent, NotesState> {
+  final AddNoteUsecase addNoteUsecase;
+
+  NotesBlocAdd({required this.addNoteUsecase}) : super(Updating()) {
+    on<NotesEvent>((event, emit) async {
+      if(event is AddNotes) {
+        try {
+          await addNoteUsecase.execute(event.note);
+          emit(Updated(msg: 'Updated'));
         } catch (e) {
           emit(Error(error: e.toString()));
         }

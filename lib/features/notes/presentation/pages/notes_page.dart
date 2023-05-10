@@ -53,7 +53,7 @@ class _PostsPageState extends State<PostsPage> {
             child: IconButton(
               icon: const Icon(Icons.refresh),
               iconSize: 30,
-              color: Color.fromARGB(220, 255, 255, 255),
+              color: const Color.fromARGB(220, 255, 255, 255),
               tooltip: 'Actualizar lista',
               onPressed: () async {
                 BlocProvider.of<NotesBloc>(context).add(GetNotes());
@@ -109,7 +109,7 @@ class _PostsPageState extends State<PostsPage> {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  backgroundColor: Color.fromARGB(255, 34, 34, 36) ,
+                                  backgroundColor: const Color.fromARGB(255, 34, 34, 36),
                                   title: Row(
                                     children: const [
                                       Icon(
@@ -130,18 +130,20 @@ class _PostsPageState extends State<PostsPage> {
                                       children: [
                                         TextField(
                                           controller: noteTitle,
-                                          maxLength: 15,
-                                          
+                                          maxLength: 20,
+                                          style: const TextStyle(color: Colors.white70),
                                           decoration: const InputDecoration(
                                             hintText: 'Titulo', 
-                                            focusColor: Colors.white60
+                                            hintStyle: TextStyle(color: Colors.white38),
                                           ),
                                         ),
                                         TextField(
                                           controller: noteBody,
-                                          maxLength: 50,
+                                          maxLength: 80,
+                                          style: const TextStyle(color: Colors.white70),
                                           decoration: const InputDecoration(
                                             hintText: 'Descripción',
+                                            hintStyle: TextStyle(color: Colors.white38),
                                           ),
                                         ),
                                       ],
@@ -221,15 +223,17 @@ class _PostsPageState extends State<PostsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: const Color.fromARGB(255, 34, 34, 36),
           title: Row(
             children: const [
               Icon(
                 Icons.edit,
+                color: Colors.white70,
               ),
               SizedBox(width: 10),
               Text(
                 'Añadir nota',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white70,),
               ),
             ],
           ),
@@ -240,15 +244,19 @@ class _PostsPageState extends State<PostsPage> {
                 TextField(
                   controller: noteTitle,
                   maxLength: 20,
+                  style: const TextStyle(color: Colors.white70),
                   decoration: const InputDecoration(
                     hintText: 'Titulo',
+                    hintStyle: TextStyle(color: Colors.white38),
                   ),
                 ),
                 TextField(
                   controller: noteBody,
-                  maxLength: 100,
+                  maxLength: 80,
+                  style: const TextStyle(color: Colors.white70),
                   decoration: const InputDecoration(
                     hintText: 'Descripción',
+                    hintStyle: TextStyle(color: Colors.white38),
                   ),
                 ),
               ],

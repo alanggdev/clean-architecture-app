@@ -4,6 +4,8 @@ import 'dart:convert' as convert;
 import 'package:clean_architecture_app/features/notes/domain/entities/note.dart';
 import 'package:clean_architecture_app/features/notes/data/models/note_model.dart';
 
+String apiURI = '4978-2806-10ae-1b-a78a-71f9-7912-dd2b-9877.ngrok-free.app';
+
 abstract class NoteRemoteDataSource {
   Future<List<NoteModel>> getNotes();
   Future<void> addNote(Note note);
@@ -14,7 +16,7 @@ abstract class NoteRemoteDataSource {
 class NoteRemoteDataSourceImp implements NoteRemoteDataSource {
   @override
   Future<List<NoteModel>> getNotes() async {
-    var url = Uri.https('4978-2806-10ae-1b-a78a-71f9-7912-dd2b-9877.ngrok-free.app', '/api/notes');
+    var url = Uri.https(apiURI, '/api/notes');
     var response = await http.get(url);
 
     if(response.statusCode == 200) {
@@ -28,7 +30,7 @@ class NoteRemoteDataSourceImp implements NoteRemoteDataSource {
 
   @override
   Future<void> addNote(Note note) async {
-    var url = Uri.https('4978-2806-10ae-1b-a78a-71f9-7912-dd2b-9877.ngrok-free.app', '/api/notes');
+    var url = Uri.https(apiURI, '/api/notes');
     var body = {
       'title': note.title,
       'body': note.body,
@@ -36,12 +38,13 @@ class NoteRemoteDataSourceImp implements NoteRemoteDataSource {
     var headers = {'Content-Type': 'application/json'};
     var response = await http.post(url, body: convert.jsonEncode(body), headers: headers);
 
-    print(response.body.toString());
+    // print(response.body.toString());
+    print('Added');
   }
 
   @override
   Future<void> updateNote(Note note) async {
-    var url = Uri.https('4978-2806-10ae-1b-a78a-71f9-7912-dd2b-9877.ngrok-free.app', '/api/note/${note.id}');
+    var url = Uri.https(apiURI, '/api/note/${note.id}');
     var body = {
       'title': note.title,
       'body': note.body,
@@ -49,14 +52,16 @@ class NoteRemoteDataSourceImp implements NoteRemoteDataSource {
     var headers = {'Content-Type': 'application/json'};
     var response = await http.patch(url, body: convert.jsonEncode(body), headers: headers);
 
-    print(response.body.toString());
+    // print(response.body.toString());
+    print('Updated');
   }
 
   @override
   Future<void> deleteNote(Note note) async {
-    var url = Uri.https('4978-2806-10ae-1b-a78a-71f9-7912-dd2b-9877.ngrok-free.app', '/api/note/${note.id}');
+    var url = Uri.https(apiURI, '/api/note/${note.id}');
     var response = await http.delete(url);
 
-    print(response.body.toString());
+    // print(response.body.toString());
+    print('Deleted');
   }
 }

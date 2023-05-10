@@ -9,3 +9,15 @@ class AddNotes extends NotesEvent {
 
   AddNotes({required this.note});
 }
+
+class UpdateNote extends NotesEvent {
+  final Note note;
+
+  UpdateNote({required this.note});
+}
+
+class DeleteNote extends NotesEvent {
+  final Note note;
+
+  DeleteNote({required this.note});
+}

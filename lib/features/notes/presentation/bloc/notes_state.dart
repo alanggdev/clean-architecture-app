@@ -4,11 +4,7 @@ abstract class NotesState {}
 
 class Updating extends NotesState {}
 
-class Updated extends NotesState{
-  final String msg;
-
-  Updated({required this.msg});
-}
+class Updated extends NotesState{}
 
 class Loading extends NotesState {}
 

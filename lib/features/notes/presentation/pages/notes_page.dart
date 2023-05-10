@@ -1,13 +1,5 @@
 import 'dart:ui';
-
-import 'package:clean_architecture_app/features/notes/data/datasources/note_remote.dart';
-import 'package:clean_architecture_app/features/notes/data/repositories/note_repository_impl.dart';
 import 'package:clean_architecture_app/features/notes/domain/entities/note.dart';
-import 'package:clean_architecture_app/features/notes/domain/usecases/add_note.dart';
-import 'package:clean_architecture_app/features/notes/domain/usecases/delete_note.dart';
-import 'package:clean_architecture_app/features/notes/domain/usecases/get_notes.dart';
-import 'package:clean_architecture_app/features/notes/domain/usecases/update_note.dart';
-
 import 'package:clean_architecture_app/features/notes/presentation/bloc/notes_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -35,9 +27,13 @@ class _PostsPageState extends State<PostsPage> {
         backgroundColor: const Color.fromARGB(255, 22, 22, 22),
         elevation: 0,
         toolbarHeight: 110,
-        title: const  Padding(
-          padding:  EdgeInsets.only(left: 12),
-          child:  Text('Mis Notas', style: TextStyle(fontSize: 30, color: Color.fromARGB(220, 255, 255, 255)),),
+        title: const Padding(
+          padding: EdgeInsets.only(left: 12),
+          child: Text(
+            'Mis Notas',
+            style: TextStyle(
+                fontSize: 30, color: Color.fromARGB(220, 255, 255, 255)),
+          ),
         ),
         actions: <Widget>[
           IconButton(
@@ -81,35 +77,48 @@ class _PostsPageState extends State<PostsPage> {
                   margin: const EdgeInsets.only(left: 5, right: 5, bottom: 15),
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16), 
+                    borderRadius: BorderRadius.circular(16),
                     color: const Color.fromARGB(255, 34, 34, 36),
-                     boxShadow: const [
-                        BoxShadow(
-                          color: Color.fromARGB(255, 17, 17, 17),
-                          blurRadius: 4.0, // soften the shadow
-                          spreadRadius: -1.5, //extend the shadow
-                          offset: Offset(
-                            0.5, 
-                            2.5, 
-                          ),
-                        )
-                      ],
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color.fromARGB(255, 17, 17, 17),
+                        blurRadius: 4.0, // soften the shadow
+                        spreadRadius: -1.5, //extend the shadow
+                        offset: Offset(
+                          0.5,
+                          2.5,
+                        ),
+                      )
+                    ],
                   ),
                   child: ListTile(
                     // leading: Text(note.id.toString()),
-                    title: Text(note.title, style: const TextStyle(color: Color.fromARGB(185, 255, 255, 255), fontSize: 20),),
-                    subtitle: Text(note.body, style: const TextStyle(color: Color.fromARGB(140, 255, 255, 255)),),
+                    title: Text(
+                      note.title,
+                      style: const TextStyle(
+                          color: Color.fromARGB(185, 255, 255, 255),
+                          fontSize: 20),
+                    ),
+                    subtitle: Text(
+                      note.body,
+                      style: const TextStyle(
+                          color: Color.fromARGB(140, 255, 255, 255)),
+                    ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.white70,),
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Colors.white70,
+                          ),
                           onPressed: () {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  backgroundColor: const Color.fromARGB(255, 34, 34, 36),
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 34, 34, 36),
                                   title: Row(
                                     children: const [
                                       Icon(
@@ -120,7 +129,8 @@ class _PostsPageState extends State<PostsPage> {
                                       Text(
                                         'Editar nota',
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold, color: Colors.white70),
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white70),
                                       ),
                                     ],
                                   ),
@@ -131,19 +141,23 @@ class _PostsPageState extends State<PostsPage> {
                                         TextField(
                                           controller: noteTitle,
                                           maxLength: 20,
-                                          style: const TextStyle(color: Colors.white70),
+                                          style: const TextStyle(
+                                              color: Colors.white70),
                                           decoration: const InputDecoration(
-                                            hintText: 'Titulo', 
-                                            hintStyle: TextStyle(color: Colors.white38),
+                                            hintText: 'Titulo',
+                                            hintStyle: TextStyle(
+                                                color: Colors.white38),
                                           ),
                                         ),
                                         TextField(
                                           controller: noteBody,
                                           maxLength: 80,
-                                          style: const TextStyle(color: Colors.white70),
+                                          style: const TextStyle(
+                                              color: Colors.white70),
                                           decoration: const InputDecoration(
                                             hintText: 'Descripción',
-                                            hintStyle: TextStyle(color: Colors.white38),
+                                            hintStyle: TextStyle(
+                                                color: Colors.white38),
                                           ),
                                         ),
                                       ],
@@ -162,21 +176,25 @@ class _PostsPageState extends State<PostsPage> {
                                             id: note.id,
                                             title: noteTitle.text,
                                             body: noteBody.text);
-                                        await UpdateNoteUsecase(
-                                            NoteRepositoryImpl(
-                                          noteRemoteDataSource:
-                                              NoteRemoteDataSourceImp(),
-                                        )).execute(noteUpdate).then(((value) {
-                                          BlocProvider.of<NotesBloc>(context)
-                                              .add(GetNotes());
-                                          Navigator.of(context).pop();
-                                        }));
+                                        BlocProvider.of<NotesBlocModify>(
+                                                context)
+                                            .add(UpdateNote(note: noteUpdate));
+                                        Navigator.of(context).pop();
+                                        await Future.delayed(const Duration(
+                                                milliseconds: 95))
+                                            .then((value) =>
+                                                BlocProvider.of<NotesBloc>(
+                                                        context)
+                                                    .add(GetNotes()));
+                                        // BlocProvider.of<NotesBloc>(context)
+                                        //     .add(GetNotes());
                                       },
                                       style: ElevatedButton.styleFrom(
                                         foregroundColor: Colors.white,
                                         backgroundColor: Colors.deepPurple,
                                         shape: (RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(5),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
                                         )),
                                       ),
                                       child: const Text('Actualizar'),
@@ -188,14 +206,65 @@ class _PostsPageState extends State<PostsPage> {
                           },
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.white70,),
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.white70,
+                          ),
                           onPressed: () async {
-                            await DeleteNoteUsecase(NoteRepositoryImpl(
-                              noteRemoteDataSource: NoteRemoteDataSourceImp(),
-                            )).execute(note).then(((value) {
-                              BlocProvider.of<NotesBloc>(context).add(GetNotes());
-                              // Navigator.of(context).pop();
-                            }));
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text(
+                                    'Confirmación',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: Text(
+                                      '¿Está seguro de que desea eliminar ${note.title}?'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: const Text(
+                                        'Cancelar',
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    OutlinedButton(
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color:
+                                                Colors.red), // borde del botón
+                                        backgroundColor: Colors
+                                            .red, // color de fondo del botón
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Eliminar',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      onPressed: () async {
+                                        BlocProvider.of<NotesBlocModify>(
+                                                context)
+                                            .add(DeleteNote(note: note));
+                                        Navigator.of(context).pop();
+                                        await Future.delayed(const Duration(
+                                                milliseconds: 95))
+                                            .then((value) =>
+                                                BlocProvider.of<NotesBloc>(
+                                                        context)
+                                                    .add(GetNotes()));
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
                           },
                         ),
                       ],
@@ -233,7 +302,10 @@ class _PostsPageState extends State<PostsPage> {
               SizedBox(width: 10),
               Text(
                 'Añadir nota',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white70,),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white70,
+                ),
               ),
             ],
           ),
@@ -271,10 +343,15 @@ class _PostsPageState extends State<PostsPage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                var note = Note(id: 0, title: noteTitle.text, body: noteBody.text);
-                BlocProvider.of<NotesBlocAdd>(context).add(AddNotes(note: note));
+                var note =
+                    Note(id: 0, title: noteTitle.text, body: noteBody.text);
+                BlocProvider.of<NotesBlocModify>(context)
+                    .add(AddNotes(note: note));
                 Navigator.of(context).pop();
-                BlocProvider.of<NotesBloc>(context).add(GetNotes());
+                await Future.delayed(const Duration(milliseconds: 95)).then(
+                    (value) =>
+                        BlocProvider.of<NotesBloc>(context).add(GetNotes()));
+                // BlocProvider.of<NotesBloc>(context).add(GetNotes());
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: const Color.fromARGB(220, 255, 255, 255),

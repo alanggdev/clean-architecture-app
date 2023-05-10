@@ -20,13 +20,15 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<NotesBloc>(
-          create: (BuildContext context) => NotesBloc(getNotesUsecase: usecaseConfig.getNotesUsecase!)
-        ),
-        BlocProvider<NotesBlocAdd>(
-          create: (BuildContext context) => NotesBlocAdd(addNoteUsecase: usecaseConfig.addNoteUsecase!)
+            create: (BuildContext context) =>
+                NotesBloc(getNotesUsecase: usecaseConfig.getNotesUsecase!)),
+        BlocProvider<NotesBlocModify>(
+          create: (BuildContext context) => NotesBlocModify(
+              addNoteUsecase: usecaseConfig.addNoteUsecase!,
+              updateNoteUsecase: usecaseConfig.updateNoteUsecase!,
+              deleteNoteUsecase: usecaseConfig.deleteNoteUsecase!),
         ),
       ],
-
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',

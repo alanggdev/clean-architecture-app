@@ -1,9 +1,12 @@
-import 'dart:ui';
+import 'dart:async';
+import 'dart:convert';
 import 'package:clean_architecture_app/features/notes/domain/entities/note.dart';
 import 'package:clean_architecture_app/features/notes/presentation/bloc/notes_bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PostsPage extends StatefulWidget {
   const PostsPage({super.key});
@@ -13,10 +16,85 @@ class PostsPage extends StatefulWidget {
 }
 
 class _PostsPageState extends State<PostsPage> {
+  late StreamSubscription<ConnectivityResult> subscription;
+
   @override
   void initState() {
     super.initState();
-    context.read<NotesBloc>().add(GetNotes());
+    checkInternetConnection();
+  }
+
+  void checkInternetConnection() async {
+    // Verify internet connection on first view
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.containsKey('addNoteOffline')) {
+        String? encodedNotesCache = prefs.getString('addNoteOffline');
+        prefs.remove('addNoteOffline');
+        if (encodedNotesCache != null) {
+          List<dynamic> decodedList = json.decode(encodedNotesCache);
+          List<Note> notes = decodedList.map((map) => Note.fromMap(map)).toList();
+
+          final BuildContext currentContext = context;
+          Future.microtask(() {
+            final notesBloc = currentContext.read<NotesBlocModify>();
+            notesBloc.add(AddNotes(notes: notes));
+          });
+        }
+      }
+    } else {
+      final BuildContext currentContext = context;
+      Future.microtask(() {
+        final notesBloc = currentContext.read<NotesBloc>();
+        notesBloc.add(GetNotesOffline());
+        const snackBar = SnackBar(
+          content: Text('No internet connection'),
+          duration: Duration(days: 365),
+        );
+        ScaffoldMessenger.of(currentContext).showSnackBar(snackBar);
+      });
+    }
+
+    // Verify connectivity changes
+    subscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) async {
+      if (result == ConnectivityResult.wifi || result == ConnectivityResult.mobile) {
+        final prefs = await SharedPreferences.getInstance();
+        if (prefs.containsKey('addNoteOffline')){
+          String? encodedNotesCache = prefs.getString('addNoteOffline');
+          prefs.remove('addNoteOffline');
+          if (encodedNotesCache != null) {
+            List<dynamic> decodedList = json.decode(encodedNotesCache);
+            List<Note> notes = decodedList.map((map) => Note.fromMap(map)).toList();
+
+            final BuildContext currentContext = context;
+            Future.microtask((() {
+              final notesBloc = currentContext.read<NotesBlocModify>();
+              notesBloc.add(AddNotes(notes: notes));
+            }));
+          }
+        }
+        final BuildContext currentContext = context;
+        Future.microtask((() {
+          final notesBloc = currentContext.read<NotesBloc>();
+          notesBloc.add(GetNotes());
+          ScaffoldMessenger.of(currentContext).clearSnackBars();
+        }));
+      } else {
+        context.read<NotesBloc>().add(GetNotesOffline());
+        const snackBar = SnackBar(
+          content: Text('No internet connection'),
+          duration: Duration(days: 365),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    });
+  }
+
+  @override
+  dispose() {
+    subscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -310,7 +388,7 @@ class _PostsPageState extends State<PostsPage> {
             ],
           ),
           content: SizedBox(
-            height: 220,
+            height: 140,
             child: Column(
               children: [
                 TextField(
@@ -343,15 +421,54 @@ class _PostsPageState extends State<PostsPage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                var note =
-                    Note(id: 0, title: noteTitle.text, body: noteBody.text);
-                BlocProvider.of<NotesBlocModify>(context)
-                    .add(AddNotes(note: note));
-                Navigator.of(context).pop();
-                await Future.delayed(const Duration(milliseconds: 95)).then(
-                    (value) =>
-                        BlocProvider.of<NotesBloc>(context).add(GetNotes()));
-                // BlocProvider.of<NotesBloc>(context).add(GetNotes());
+                var note = Note(id: 0, title: noteTitle.text, body: noteBody.text);
+                await (Connectivity().checkConnectivity()).then(((connectivityResult) async {
+                  if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+                  // print('internet');
+                  List<Note> notes = [];
+                  notes.add(note);
+                  BlocProvider.of<NotesBlocModify>(context).add(AddNotes(notes: notes));
+                  Navigator.of(context).pop();
+                  await Future.delayed(const Duration(milliseconds: 95)).then((value) => BlocProvider.of<NotesBloc>(context).add(GetNotes()));
+                } else{
+                  // print('no internet');
+                  final prefs = await SharedPreferences.getInstance();
+                  if (prefs.containsKey('addNoteOffline')){
+                    // print('exists');
+                    String? encodedNotesCache = prefs.getString('addNoteOffline');
+                    prefs.remove('addNoteOffline');
+                    if (encodedNotesCache != null) {
+                      List<dynamic> decodedList = json.decode(encodedNotesCache);
+                      List<Note> notes = decodedList.map((map) => Note.fromMap(map)).toList();
+
+                      notes.add(note);
+                      List<Map<String, dynamic>> encodedList = notes.map((note) => note.toMap()).toList();
+                      String encodedNotes = json.encode(encodedList);
+                      prefs.setString('addNoteOffline', encodedNotes);
+                    }
+                  } else {
+                    // print('not exists');
+                    List<Note> notes = [];
+
+                    notes.add(note);
+                    List<Map<String, dynamic>> encodedList = notes.map((note) => note.toMap()).toList();
+                    String encodedNotes = json.encode(encodedList);
+                    prefs.setString('addNoteOffline', encodedNotes);
+                  }
+                  final BuildContext currentContext = context;
+                  Future.microtask((() {
+                    Navigator.of(currentContext).pop();
+                    ScaffoldMessenger.of(currentContext).clearSnackBars();
+                  }));
+                  const snackBar = SnackBar(
+                    content: Text('No internet connection. Pending Changes.'),
+                    duration: Duration(days: 365),
+                  );
+                  Future.microtask((() {
+                    ScaffoldMessenger.of(currentContext).showSnackBar(snackBar);
+                  }));
+                }
+                }));
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: const Color.fromARGB(220, 255, 255, 255),

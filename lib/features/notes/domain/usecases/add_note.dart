@@ -6,7 +6,7 @@ class AddNoteUsecase {
 
   AddNoteUsecase(this.noteRepository);
 
-  Future<void> execute(Note note) async {
-    return await noteRepository.addNote(note);
+  Future<void> execute(List<Note> notes) async {
+    return await noteRepository.addNote(notes);
   }
 }

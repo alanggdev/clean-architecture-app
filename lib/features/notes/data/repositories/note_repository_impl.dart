@@ -13,8 +13,8 @@ class NoteRepositoryImpl implements NoteRepository {
   }
 
   @override
-  Future<void> addNote(Note note) async {
-    return await noteRemoteDataSource.addNote(note);
+  Future<void> addNote(List<Note> notes) async {
+    return await noteRemoteDataSource.addNote(notes);
   }
 
   @override

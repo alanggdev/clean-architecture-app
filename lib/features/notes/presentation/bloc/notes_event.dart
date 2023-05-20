@@ -5,9 +5,9 @@ abstract class NotesEvent {}
 class GetNotes extends NotesEvent {}
 
 class AddNotes extends NotesEvent {
-  final Note note;
+  final List<Note> notes;
 
-  AddNotes({required this.note});
+  AddNotes({required this.notes});
 }
 
 class UpdateNote extends NotesEvent {
@@ -21,3 +21,5 @@ class DeleteNote extends NotesEvent {
 
   DeleteNote({required this.note});
 }
+
+class GetNotesOffline extends NotesEvent {}

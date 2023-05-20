@@ -4,6 +4,8 @@ abstract class NotesState {}
 
 class Updating extends NotesState {}
 
+class InitialState extends NotesState {}
+
 class Updated extends NotesState{}
 
 class Loading extends NotesState {}

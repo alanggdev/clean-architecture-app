@@ -1,7 +1,3 @@
-import 'dart:async';
-import 'dart:convert' as convert;
-
-import 'package:bloc/bloc.dart';
 import 'package:clean_architecture_app/features/notes/data/models/note_model.dart';
 import 'package:clean_architecture_app/features/notes/domain/entities/note.dart';
 import 'package:clean_architecture_app/features/notes/domain/usecases/add_note.dart';
@@ -9,6 +5,9 @@ import 'package:clean_architecture_app/features/notes/domain/usecases/delete_not
 import 'package:clean_architecture_app/features/notes/domain/usecases/get_notes.dart';
 import 'package:clean_architecture_app/features/notes/domain/usecases/update_note.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'dart:convert' as convert;
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'notes_event.dart';
 part 'notes_state.dart';
@@ -27,12 +26,10 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
           emit(Error(error: e.toString()));
         }
       } else if (event is GetNotesOffline) {
-        print('getnotesoffline');
         try {
           emit(Loading());
           final prefs = await SharedPreferences.getInstance();
           String? userDataStr = prefs.getString('localUserData');
-          print(userDataStr);
           if (userDataStr != null) {
             var returnData = convert
                 .jsonDecode(userDataStr)

@@ -8,7 +8,7 @@ import 'package:clean_architecture_app/features/notes/data/models/note_model.dar
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-String apiURI = '3c51-177-227-12-67.ngrok-free.app';
+String apiURI = '959f-177-227-12-67.ngrok-free.app';
 
 abstract class NoteRemoteDataSource {
   Future<List<NoteModel>> getNotes();
@@ -50,22 +50,45 @@ class NoteRemoteDataSourceImp implements NoteRemoteDataSource {
       body.add(object);
     }
 
-    var response = await http.post(url, body: convert.jsonEncode(body), headers: headers);
-    print('Added');
+    await http.post(url, body: convert.jsonEncode(body), headers: headers);
+    // print('Added');
   }
 
   @override
   Future<void> updateNote(Note note) async {
-    var url = Uri.https(apiURI, '/api/note/${note.id}');
-    var body = {
-      'title': note.title,
-      'body': note.body,
-    };
-    var headers = {'Content-Type': 'application/json'};
-    var response = await http.patch(url, body: convert.jsonEncode(body), headers: headers);
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('updateNoteOffline')){
+      String? encodedDataCache = prefs.getString('updateNoteOffline');
+      prefs.remove('updateNoteOffline');
+      if (encodedDataCache != null) {
+        List<dynamic> decodedList = json.decode(encodedDataCache);
+        List<Note> notes = decodedList.map((map) => Note.fromMap(map)).toList();
 
-    // print(response.body.toString());
-    print('Updated');
+        List<Map<String, Object>> body = [];
+        for (var updateNote in notes) {
+          var object = {
+            'id': updateNote.id,
+            'data' : {
+              'title': updateNote.title,
+              'body': updateNote.body,
+            }
+          };
+          body.add(object);
+        }
+        var url = Uri.https(apiURI, '/api/notes/multiple');
+        var headers = {'Content-Type': 'application/json'};
+        await http.patch(url, body: convert.jsonEncode(body), headers: headers);
+      }
+    } else {
+      var url = Uri.https(apiURI, '/api/note/${note.id}');
+      var body = {
+        'title': note.title,
+        'body': note.body,
+      };
+      var headers = {'Content-Type': 'application/json'};
+      await http.patch(url, body: convert.jsonEncode(body), headers: headers);
+    }
+    // print('Updated');
   }
 
   @override
@@ -91,8 +114,6 @@ class NoteRemoteDataSourceImp implements NoteRemoteDataSource {
       var url = Uri.https(apiURI, '/api/note/${note.id}');
       await http.delete(url);
     }
-
-    // print(response.body.toString());
-    print('Deleted');
+    // print('Deleted');
   }
 }

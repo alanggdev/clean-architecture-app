@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
@@ -6,7 +8,7 @@ import 'package:clean_architecture_app/features/notes/data/models/note_model.dar
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-String apiURI = 'ad46-177-227-15-19.ngrok-free.app';
+String apiURI = '3c51-177-227-12-67.ngrok-free.app';
 
 abstract class NoteRemoteDataSource {
   Future<List<NoteModel>> getNotes();
@@ -68,8 +70,27 @@ class NoteRemoteDataSourceImp implements NoteRemoteDataSource {
 
   @override
   Future<void> deleteNote(Note note) async {
-    var url = Uri.https(apiURI, '/api/note/${note.id}');
-    var response = await http.delete(url);
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('deleteNoteOffline')){
+      String? encodedPkCache = prefs.getString('deleteNoteOffline');
+      prefs.remove('deleteNoteOffline');
+      if (encodedPkCache != null) {
+        List<dynamic> decodedList = json.decode(encodedPkCache);
+        List<Note> notes = decodedList.map((map) => Note.fromMap(map)).toList();
+
+        List<int> pks = [];
+        for (var deletePk in notes) {
+          pks.add(deletePk.id);
+        }
+        var object = {'primary_keys': pks};
+        var url = Uri.https(apiURI, '/api/notes/multiple');
+        var headers = {'Content-Type': 'application/json'};
+        await http.post(url, body: convert.jsonEncode(object), headers: headers);
+      }
+    } else {
+      var url = Uri.https(apiURI, '/api/note/${note.id}');
+      await http.delete(url);
+    }
 
     // print(response.body.toString());
     print('Deleted');
